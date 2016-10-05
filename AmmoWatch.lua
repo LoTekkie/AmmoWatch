@@ -24,7 +24,7 @@
 
 _addon.author   = 'Sjshovan (Apogee)';
 _addon.name     = 'AmmoWatch';
-_addon.version  = '0.1.0';
+_addon.version  = '0.1.1';
 
 require 'common'
 require 'timer'
@@ -66,7 +66,7 @@ local chatModes = {
     echo        = 206,
     unity       = 211,
     danger      = 39,
-    success     = 204,
+    linkshell2  = 204,
     info        = 207,
     combatInfo  = 36,
     combatInfo2 = 37
@@ -150,7 +150,11 @@ local function echo(message)
 end
 
 local function addChat(mode, message)
-    local c_msg = string.color(message, mode)
+    local c_msg = "";
+        for i, word in ipairs(getWords(message)) do
+            local c_word = string.color(word, mode)
+            c_msg = c_msg..word.." ";
+        end
     _chat:AddChatMessage(mode, c_msg)
 end
 
@@ -195,7 +199,7 @@ local function getAmmo()
     local iEntry = _inventory:GetInventoryItem(STORAGETYPE_INVENTORY, eEntry.ItemIndex);
     local ammo   = _resource:GetItemByID(iEntry.Id);
     return {
-        ["name"]        = ammo.Name[0x2].."s",
+        ["name"]        = ammo.Name[0x2],
         ["delay"]       = ammo.Delay,
         ["count"]       = iEntry.Count,
         ["iEntry"]      = ammo,
@@ -234,7 +238,7 @@ local function displayAmmoCount()
     local ammo = getAmmo();
     --TODO:heck ammo slot, if none, display different message
     local count = ammo.count;
-    local color = chatModes.success;
+    local color = chatModes.linkshell2;
     local prefix = "Thre are";
 
     if (count <= 10) then
@@ -275,7 +279,7 @@ end
 -- desc: every_count.
 -----------------------------------------------------
 local function displayEveryCount(count, msg_participle)
-    local c_count = string.color(count, chatModes.success);
+    local c_count = string.color(count, chatModes.linkshell2);
     addChat(chatModes.say, "The ammo count "..msg_participle.." displayed every "..c_count.." "..iPlural(count, "use")..".");
 end
 
@@ -337,8 +341,8 @@ ashita.register_event('command', function(cmd, nType)
         return true;
 
     elseif (args[2] == "get") then
-       displayAmmoCount();
-       return true;
+        displayAmmoCount();
+        return true;
 
     elseif (args[2] == "every") then
         if (args[3] and isInt(args[3])) then
