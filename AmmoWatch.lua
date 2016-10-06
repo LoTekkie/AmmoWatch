@@ -24,7 +24,7 @@
 
 _addon.author   = 'Sjshovan (Apogee)';
 _addon.name     = 'AmmoWatch';
-_addon.version  = '0.1.1';
+_addon.version  = '0.1.2';
 
 require 'common'
 require 'timer'
@@ -76,7 +76,11 @@ local helpCmds = {
     "======================",
     "AmmoWatch Commands",
     "======================",
-
+	"/aw get => Display current count of equipped ammo.",
+	"/aw every x Display ammo count every x number of uses.",
+	"/aw reload => Reload the AmmoWatch addon.",
+    "/aw unload => Unload the AmmoWatch addon.",
+    "/aw (help/?) => Display this list of commands.",
     "======================",
 }
 
@@ -136,10 +140,10 @@ function table.slice(tbl, first, last, step)
 end
 
 local function iPlural(count, word)
-    if count > 1 then
-        word = word.."s";
-    end
-    return word
+    if  count ~= 1 then
+		return word.."s";
+	end
+		return word;
 end
 
 -----------------------------------------------------
@@ -239,11 +243,11 @@ local function displayAmmoCount()
     --TODO:heck ammo slot, if none, display different message
     local count = ammo.count;
     local color = chatModes.linkshell2;
-    local prefix = "Thre are";
+    local prefix = "There are";
 
     if (count <= 10) then
         color = chatModes.danger;
-        prefix = "Thre are only";
+        prefix = "There are only";
     end
 
     if (count <= 1) then
@@ -336,11 +340,8 @@ ashita.register_event('command', function(cmd, nType)
     if (args[1] ~= '/aw' and args[1] ~= '/ammo' and args[1] ~= '/ammowatch') then
         return false;
     end
-
-    if (args[2] == "test") then
-        return true;
-
-    elseif (args[2] == "get") then
+    
+    if (args[2] == "get") then
         displayAmmoCount();
         return true;
 
@@ -353,10 +354,7 @@ ashita.register_event('command', function(cmd, nType)
             addChat(chatModes.tell, "To change this value, type: '/aw every x' where 'x' is the new value.")
         end
         return true;
-
-    elseif (args[2] == "warn") then
-        return true;
-
+ 
     elseif (args[2] == "reload") then
         _chat:QueueCommand("/addon reload AmmoWatch", 0);
         return true;
