@@ -24,7 +24,7 @@
 
 _addon.author   = 'Sjshovan (Apogee)';
 _addon.name     = 'AmmoWatch';
-_addon.version  = '0.1.2';
+_addon.version  = '1.0.0';
 
 require 'common'
 require 'timer'
@@ -238,24 +238,35 @@ end
 -- desc: ammo.
 -----------------------------------------------------
 
+local function playerHasAmmo()
+	return getAmmo().name ~= "Gil";
+end
+
 local function displayAmmoCount()
     local ammo = getAmmo();
-    --TODO:heck ammo slot, if none, display different message
+  
     local count = ammo.count;
     local color = chatModes.linkshell2;
     local prefix = "There are";
+	
+	if (playerHasAmmo()) then 
 
-    if (count <= 10) then
-        color = chatModes.danger;
-        prefix = "There are only";
-    end
+		if (count <= 10) then
+			color = chatModes.danger;
+			prefix = "There are only";
+		end
 
-    if (count <= 1) then
-        prefix = "There is only"
-    end
+		if (count == 1) then
+			prefix = "There is only"
+		end
 
-    local c_count = string.color(ammo.count, color);
-    addChat(chatModes.say, prefix.." "..c_count.." "..iPlural(count, ammo.name).." left.");
+		local c_count = string.color(ammo.count, color);
+		addChat(chatModes.say, prefix.." "..c_count.." "..iPlural(count, ammo.name).." left.");
+		
+	else
+		local msg = string.color("You are out of ammo.", chatModes.danger);
+		addChat(chatModes.say, msg);
+	end
 end
 
 local function normalizeCount(count, min)
@@ -266,6 +277,7 @@ local function normalizeCount(count, min)
     end
     return count;
 end
+
 
 -----------------------------------------------------
 -- desc: every_uses.
@@ -307,6 +319,9 @@ local function onActionTimerEnd()
 
     if (getEveryUses() >= getEveryCount()) then
         displayAmmoCount();
+        setEveryUses(0);
+	elseif (not playerHasAmmo()) then
+		displayAmmoCount();
         setEveryUses(0);
     end
 
